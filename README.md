@@ -1,21 +1,21 @@
-# 💸 CuttrPay
+# CuttrPay
 
 **CuttrPay** is a minimalist, high-speed bill-splitting utility built for real-world social friction. 
 
 Most splitting apps require everyone to have an account. **CuttrPay** is different: only the bill-payer needs the app. It calculates proportional tax logic, generates instant UPI QR codes, and provides a ready-to-paste WhatsApp summary.
 
-## ✨ Key Features
+## Key Features
 - **Proportional Split:** Handles fixed individual shares while auto-balancing taxes and service charges.
 - **Instant Settlement:** Generates dynamic UPI QR codes for immediate scan-and-pay.
 - **Zero Friction:** No user accounts or downloads required for friends.
 - **Social Integration:** One-click copy for WhatsApp group summaries.
 
-## 🛠️ Tech Stack
+## Tech Stack
 - **Frontend:** Streamlit
 - **Backend:** Python 3.14+
 - **QR Engine:** `qrcode` library
 
-## 📂 Local Setup
+## Local Setup
 
 1. **Clone the repo:**
    ```bash
