@@ -25,8 +25,9 @@ unequal_ledger = {}
 with st.sidebar:
     st.header("Settings")
     bill = st.number_input("Total Bill", min_value=0.0, value=100.0)
-    vpa = st.text_input("Your UPI ID", value="test@upi")
-    #mode = st.radio("Split Mode", ["Equal", "Unequal"])
+    vpa = st.text_input("Your UPI ID", placeholder="9876543210@ybl", help="Find this in GPay/PhonePe profile settings. Usually looks like 'name@bank' or 'number@bank'.")
+    if not vpa:
+        st.info("👆 Enter your UPI ID above to enable QR payments!")
 
     #Adding friends
     new_friend = st.text_input("Enter friend's name:", placeholder="e.g. Ronaldo")
@@ -71,7 +72,10 @@ if st.button("Generate payment QR codes"):
         ledger = logic.proportional_tax(individual_share, bill)
         st.session_state.tax_ledger = ledger
 
-        services.qr_code_gen(ledger, vpa)
+        if vpa:
+            services.qr_code_gen(ledger, vpa)
+        else:
+            st.warning("Skipping QR Code generation - No UPI ID provided")
         st.success("Scan Below")
         st.rerun()
 
