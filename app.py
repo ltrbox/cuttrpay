@@ -92,10 +92,12 @@ if st.session_state.tax_ledger:
             img_path = f"qrs_output/{name}_owes_{amount:.2f}.png"
             st.image(img_path)
     
-    message = f"Hey! Your share for dinner is ₹{individual_share}. Pay here: {upi_link}"
-    encoded_msg = urllib.parse.quote(message)
-
-    st.link_button("Share via WhatsApp", f"https://wa.me/?text={encoded_msg}")
+    for name, amount in ledger.items():
+        personal_msg = f"Hey {name}! Your share for dinner is ₹{amount}. Pay here: {upi_link}"
+    
+        encoded_msg = urllib.parse.quote(personal_msg)
+    
+        st.link_button(f"📲 Send to {name}", f"https://wa.me/?text={encoded_msg}", use_container_width=True)
 
 elif not st.session_state.friends_list:
     st.info("Add friends and hit 'Generate")
