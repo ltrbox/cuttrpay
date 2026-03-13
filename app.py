@@ -1,7 +1,7 @@
 import streamlit as st
 import logic
 import services
-import time
+import urllib.parse
 
 st.title("CuttrPay")
 
@@ -90,19 +90,10 @@ if st.session_state.tax_ledger:
             img_path = f"qrs_output/{name}_owes_{amount:.2f}.png"
             st.image(img_path)
     
-    summary_text = f"🧾 *CutiPay Split Result*\n"
-    summary_text += f"Total Bill: ₹{bill}\n"
-    summary_text += "-------------------\n"
-    
-    for name, amount in st.session_state.tax_ledger.items():
-        summary_text += f"• {name}: ₹{amount:.2f}\n"
-    
-    summary_text += "\n*Scan the QRs on my phone to pay!*"
+    message = f"Hey! Your share for dinner is ₹{individual_share}. Pay here: {services.upi_link}"
+    encoded_msg = urllib.parse.quote(message)
 
-    # 2. Show it in a clean box for copying
-    st.divider()
-    st.subheader("Send to Group")
-    st.text_area("Copy and paste this to WhatsApp:", value=summary_text, height=150)
+    st.link_button("Share via WhatsApp", f"https://wa.me/?text={encoded_msg}")
 
 elif not st.session_state.friends_list:
     st.info("Add friends and hit 'Generate")
