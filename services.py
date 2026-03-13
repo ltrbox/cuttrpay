@@ -4,6 +4,9 @@ import os
 import qrcode
 import shutil
 
+def get_upi_link(vpa, amount):
+    return f"upi://pay?pa={vpa}&am={amount}&cu=INR"
+
 def qr_code_gen(final_ledger, vpa):
     # Overwrites the folder each time and starts new
     folder = "qrs_output"

@@ -79,6 +79,8 @@ if st.button("Generate payment QR codes"):
         st.success("Scan Below")
         st.rerun()
 
+upi_link = services.get_upi_link(vpa, bill)
+
 if st.session_state.tax_ledger: 
 
     ledger = st.session_state.tax_ledger
@@ -90,7 +92,7 @@ if st.session_state.tax_ledger:
             img_path = f"qrs_output/{name}_owes_{amount:.2f}.png"
             st.image(img_path)
     
-    message = f"Hey! Your share for dinner is ₹{individual_share}. Pay here: {services.upi_link}"
+    message = f"Hey! Your share for dinner is ₹{individual_share}. Pay here: {upi_link}"
     encoded_msg = urllib.parse.quote(message)
 
     st.link_button("Share via WhatsApp", f"https://wa.me/?text={encoded_msg}")
