@@ -26,3 +26,21 @@ def qr_code_gen(final_ledger, vpa):
             img.save(f"qrs_output/{name}_owes_{amount:.2f}.png")
             
             print(f"Generated QR for {name}: ₹{amount}")
+
+def generate_summary(event_name, shares):
+    total = sum(shares.values())
+
+    whale_name = max(shares, key=shares.get)
+    whale_amount = shares[whale_name]
+    
+    summary = f"📊 *CuttrPay Summary: {event_name}*\n"
+    summary += f" Total Bill: ₹{total}\n"
+    summary += "---------------------------\n"
+    
+    for name, amount in shares.items():
+        summary += f"• {name}: ₹{amount}\n"
+    
+    summary += "---------------------------\n"
+    summary += f"🏆 Whale: {whale_name} (₹{whale_amount})\n"
+    summary += "Generated via CuttrPay 🚀"
+    return summary

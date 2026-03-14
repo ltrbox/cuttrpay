@@ -2,6 +2,8 @@ import streamlit as st
 import logic
 import services
 import urllib.parse
+from st_copy import copy_button
+
 
 st.title("CuttrPay")
 
@@ -46,6 +48,9 @@ with st.sidebar:
         st.session_state.friends_list = []
         st.session_state.tax_ledger = {}
         st.rerun()
+
+    event_name=st.text_input("Enter event name: ", placeholder="e.g. Restaurant/Trip")
+
 
 st.write(f"Current Bill: Rs.{bill}")
 st.write(f"Target VPA: {vpa}")
@@ -98,6 +103,13 @@ if st.session_state.tax_ledger:
         encoded_msg = urllib.parse.quote(personal_msg)
     
         st.link_button(f"📲 Send to {name}", f"https://wa.me/?text={encoded_msg}", use_container_width=True)
+
+    summary_text = services.generate_summary(event_name, ledger)
+    st.subheader("📋 Final Breakdown")
+    st.code(summary_text, language="text")
+
+    copy_button(summary_text, tooltip='Click to copy', copied_label='Copied!')
+
 
 elif not st.session_state.friends_list:
     st.info("Add friends and hit 'Generate")
