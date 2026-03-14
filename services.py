@@ -32,8 +32,6 @@ def generate_summary(event_name, shares):
     max_amount = max(shares.values())
 
     whales = [name for name, amount in shares.items() if amount == max_amount]
-    whale_amount = shares[whales]
-    
     summary = f"📊 *CuttrPay Summary: {event_name}*\n"
     summary += f" Total Bill: ₹{total}\n"
     summary += "---------------------------\n"
@@ -49,5 +47,5 @@ def generate_summary(event_name, shares):
         summary += f"🏆 Joint Whales: {', '.join(whales)} (₹{max_amount} each)"
     else:
         summary += f"🏆 Whale: {whales[0]} (₹{max_amount})"
-    summary += "Generated via CuttrPay 🚀"
+    summary += "\nGenerated via CuttrPay 🚀"
     return summary
