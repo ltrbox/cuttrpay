@@ -57,19 +57,25 @@ st.write(f"Target VPA: {vpa}")
 
 if st.session_state.friends_list:
     num_friends = len(st.session_state.friends_list)
-    default_share = bill/num_friends if num_friends > 0 else 0.0
+    default_share = round(bill / num_friends, 2)
 
     st.subheader("Adjust individual shares")
-    individual_share = {}
+    individual_share = {name: default_share for name in st.session_state.friends_list}
 
     for name in st.session_state.friends_list:
         amount = st.number_input(f"{name}'s share", value=float(default_share), key=f"input_{name}_{num_friends}")
         individual_share[name] = amount
 
     total_assigned = sum(individual_share.values())
+    diff = round(bill-total_assigned, 2)
+  
+    if diff != 0:
+        first_person = st.session_state.friends_list[0]
+        individual_share[first_person] = round(individual_share[first_person] + diff, 2)
+    
     if abs(total_assigned - bill) > 0.1:
         st.warning(f"Note: Total assigned (₹{total_assigned:.2f}) doesn't match the bill (₹{bill:.2f}). Proportional tax will adjust this automatically!")
-    
+
 
 if st.button("Generate payment QR codes"):
     if st.session_state.friends_list:
@@ -104,7 +110,7 @@ if st.session_state.tax_ledger:
     
         st.link_button(f"📲 Send to {name}", f"https://wa.me/?text={encoded_msg}", use_container_width=True)
 
-    summary_text = services.generate_summary(event_name, ledger)
+    summary_text = services.generate_summary(event_name, individual_share)
     st.subheader("📋 Final Breakdown")
     st.code(summary_text, language="text")
 
