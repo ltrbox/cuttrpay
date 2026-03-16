@@ -32,7 +32,7 @@ with st.sidebar:
         st.info("👆 Enter your UPI ID above to enable QR payments!")
 
     #Adding friends
-    new_friend = st.text_input("Enter friend's name:", placeholder="e.g. Ronaldo")
+    new_friend = st.text_input("Enter friend's name: (add your name as well)", placeholder="e.g. Ronaldo")
     if st.button("Add Friend"):
         if new_friend and new_friend not in st.session_state.friends_list:
             st.session_state.friends_list.append(new_friend)
@@ -120,3 +120,11 @@ if st.session_state.tax_ledger:
 elif not st.session_state.friends_list:
     st.info("Add friends and hit 'Generate")
 
+st.markdown("---") # Visual separator
+st.markdown(
+    "<div style='text-align: center; color: grey; font-size: 0.8em;'>"
+    "Have an idea or found a bug? 💡<br>"
+    "<a href='mailto:ltrbox.labs@gmail.com' style='color: #007bff;'>ltrbox.labs@gmail.com</a>"
+    "</div>", 
+    unsafe_allow_html=True
+)
