@@ -46,7 +46,22 @@ with st.sidebar:
     st.header("Settings")
 
     bill = st.number_input("Total Bill", min_value=0.0, value=100.0)
-    vpa = st.text_input("Your UPI ID", placeholder="9876543210@ybl", help="Find this in GPay/PhonePe profile settings. Usually looks like 'name@bank' or 'number@bank'.")
+    st.write("### Who is receiving the money?")
+    vpa_prefix = st.text_input("Your UPI ID (Before the @)", placeholder="e.g. 9876543210 or saish")
+
+    # Create a row of chips for the most common Indian handles
+    handle = st.radio(
+        "Select your app handle:",
+        ["@okaxis (GPay)", "@ybl (PhonePe)", "@paytm", "@ibl", "@okhdfcbank"],
+        horizontal=True
+    )
+
+    # Strip the helper text to get the raw handle
+    vpa_suffix = handle.split(" ")[0]
+    vpa = f"{vpa_prefix}{vpa_suffix}"
+
+    st.info(f"Payments will be directed to: **{vpa}**")
+    
     if not vpa:
         st.info("👆 Enter your UPI ID above to enable QR payments!")
 
