@@ -2,7 +2,7 @@
 
 **CuttrPay** is a minimalist, high-speed bill-splitting utility built for real-world social friction. 
 
-Most splitting apps require everyone to have an account. **CuttrPay** is different: only the bill-payer needs to open the website. It calculates proportional tax logic, generates instant UPI QR codes, and provides a ready-to-paste WhatsApp summary.
+Most splitting apps require everyone to have an account or the app. **CuttrPay** is different: only the bill-payer needs to open the website. It calculates proportional tax logic, generates instant UPI QR codes, and provides a ready-to-paste WhatsApp summary.
 ## Link
 https://cuttrpay.streamlit.app/
 
