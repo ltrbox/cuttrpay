@@ -3,6 +3,8 @@
 import os
 import qrcode
 import shutil
+import urllib.parse
+
 
 def get_upi_link(vpa, amount):
     return f"upi://pay?pa={vpa}&am={amount}&cu=INR"
@@ -14,10 +16,12 @@ def qr_code_gen(final_ledger, vpa):
         shutil.rmtree(folder)
     os.makedirs(folder)
 
+    safe_note = urllib.parse.quote("Sent via CuttrPay")
     for name, amount in final_ledger.items():
         if amount > 0: # only generates qr code if there is actual amount contributed
+            safe_name = urllib.parse.quote(name)
             # Build the string
-            upi_link = f"upi://pay?pa={vpa}&pn={name}&am={amount:.2f}&cu=INR"
+            upi_link = f"upi://pay?pa={vpa}&pn={safe_name}&am={amount:.2f}&cu=INR&tn={safe_note}"
             
             # Create the QR image object
             img = qrcode.make(upi_link)
