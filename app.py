@@ -47,7 +47,7 @@ with st.sidebar:
 
     bill = st.number_input("Total Bill", min_value=0.0, value=100.0)
     st.write("### Who is receiving the money?")
-    vpa_prefix = st.text_input("Your UPI ID (Before the @)", placeholder="e.g. 9876543210 or saish")
+    vpa_prefix = st.text_input("Your UPI ID (Before the @)", placeholder="e.g. 9876543210 or your name")
 
     # Create a row of chips for the most common Indian handles
     handle = st.radio(
