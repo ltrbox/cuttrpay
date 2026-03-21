@@ -67,7 +67,7 @@ with st.sidebar:
     st.header("3. Add Friends")
     
     # Load from Database
-    saved_contacts = get_all_contacts() # returns {name: upi_id}
+    saved_contacts = get_all_contacts(vpa) # returns {name: upi_id}
     
     if saved_contacts:
         selected_from_db = st.multiselect(
@@ -83,6 +83,7 @@ with st.sidebar:
     # Manual Add logic
     new_friend = st.text_input("Friend's Name")
     if st.button("Add to Current Split"):
+        add_contact(new_friend, "", vpa)
         if new_friend:
             if new_friend not in st.session_state.friends_list:
                 st.session_state.friends_list.append(new_friend)
