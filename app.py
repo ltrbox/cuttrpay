@@ -83,14 +83,13 @@ with st.sidebar:
     # Manual Add logic
     new_friend = st.text_input("Friend's Name")
     if st.button("Add to Current Split"):
-        add_contact(new_friend, "", vpa)
         if new_friend:
             if new_friend not in st.session_state.friends_list:
                 st.session_state.friends_list.append(new_friend)
                 
                 # --- THIS IS THE KEY CHANGE ---
                 # We call our new cloud function here
-                add_contact(new_friend, "") 
+                add_contact(new_friend, "", vpa) 
                 
                 st.session_state.last_added = new_friend
                 st.rerun()
