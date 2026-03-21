@@ -46,7 +46,7 @@ def generate_summary(event_name, shares):
     summary += "---------------------------\n"
 
     if len(whales) == len(shares) and len(shares) > 1:
-        summary += "🤝 It's an equal split! (Everyone's a Whale)"
+        summary += "It's an equal split! (Everyone's a Whale)"
     elif len(whales) > 1:
         summary += f"🏆 Joint Whales: {', '.join(whales)} (₹{max_amount} each)"
     else:

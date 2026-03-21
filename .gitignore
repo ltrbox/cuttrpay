@@ -5,6 +5,8 @@ qrs_output/
 __pycache__/
 *.pyc
 .env
+*.db
 
 # Streamlit local state
 .streamlit/config.toml
+.streamlit/secrets.toml

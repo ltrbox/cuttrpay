@@ -1,4 +1,5 @@
 import streamlit as st
+from database import add_contact, get_all_contacts
 import logic
 import services
 import urllib.parse
@@ -6,6 +7,7 @@ from st_copy import copy_button
 
 
 st.title("CuttrPay")
+
 
 st.set_page_config(
     page_title="CuttrPay",
@@ -32,58 +34,72 @@ unequal_ledger = {}
 
 with st.sidebar:
     st.title("CuttrPay")
+    st.caption("v1.25 | ltrbox.labs@gmail.com")
+    
+    with st.expander("How it works"):
+        st.write("1. Enter total bill.")
+        st.write("2. Select or add friends.")
+        st.write("3. Scan dynamic QRs to pay.")
+        st.info("Add to Home Screen for instant access.")
+
     st.markdown("---")
     
-    st.subheader("How it works")
-    st.write("1. Enter total & names.")
-    st.write("2. Show the dynamic QRs.")
-    st.write("3. Friends scan & pay instantly - no sign up, only one phone needed (this)")
+    # --- 💰 SECTION 1: BILL SETTINGS ---
+    st.header("1. Bill Details")
+    bill = st.number_input("Total Amount (₹)", min_value=0.0, value=100.0, step=10.0)
+    event_name = st.text_input("Event Name", placeholder="e.g. Lunch at Mess")
+
+    # --- 💳 SECTION 2: RECEIVER SETTINGS ---
+    st.header("2. Receiver UPI")
+    vpa_prefix = st.text_input("Your ID", placeholder="e.g. 9876543210", value=st.session_state.get('saved_vpa_prefix', ""))
     
-    st.info("Add this page to your Home Screen for instant access at lunch.")
-
-    st.markdown("---")
-    st.caption("Contact: ltrbox.labs@gmail.com")
-    st.header("Settings")
-
-    bill = st.number_input("Total Bill", min_value=0.0, value=100.0)
-    st.write("### Who is receiving the money?")
-    vpa_prefix = st.text_input("Your UPI ID (Before the @)", placeholder="e.g. 9876543210 or your name")
-
-    # Create a row of chips for the most common Indian handles
     handle = st.radio(
-        "Select your app handle:",
-        ["@okaxis (GPay)", "@ybl (PhonePe)", "@paytm", "@ibl", "@okhdfcbank"],
+        "Handle:",
+        ["@okaxis", "@ybl", "@paytm", "@ibl", "@okhdfcbank"],
         horizontal=True
     )
+    vpa = f"{vpa_prefix}{handle}"
+    st.caption(f"Paying to: **{vpa}**")
 
-    # Strip the helper text to get the raw handle
-    vpa_suffix = handle.split(" ")[0]
-    vpa = f"{vpa_prefix}{vpa_suffix}"
+    st.markdown("---")
 
-    st.info(f"Payments will be directed to: **{vpa}**")
+    # --- 📇 SECTION 3: THE MEMORY ENGINE (SQLite) ---
+    st.header("3. Add Friends")
     
-    if not vpa:
-        st.info("👆 Enter your UPI ID above to enable QR payments!")
-
-    #Adding friends
-    new_friend = st.text_input("Enter friend's name: ", placeholder="e.g. Ronaldo")
-    if st.button("Add Friend"):
-        if new_friend and new_friend not in st.session_state.friends_list:
-            st.session_state.friends_list.append(new_friend)
-            st.session_state.tax_ledger = {}
-            st.session_state.last_added = new_friend
+    # Load from Database
+    saved_contacts = get_all_contacts() # returns {name: upi_id}
+    
+    if saved_contacts:
+        selected_from_db = st.multiselect(
+            "Quick Add Favorites:", 
+            options=list(saved_contacts.keys())
+        )
+        if st.button("Add Favorites to Bill"):
+            for name in selected_from_db:
+                if name not in st.session_state.friends_list:
+                    st.session_state.friends_list.append(name)
             st.rerun()
-        else:
-            st.warning(f"{new_friend} already added")
-    if "last_added" in st.session_state:
-        st.success(f"✅ {st.session_state.last_added} added!")
 
-    if st.button("Clear All Friends"):
-        st.session_state.friends_list = []
-        st.session_state.tax_ledger = {}
-        st.rerun()
-
-    event_name=st.text_input("Enter event name: ", placeholder="e.g. Restaurant/Trip")
+    # Manual Add logic
+    new_friend = st.text_input("Friend's Name")
+    if st.button("Add to Current Split"):
+        if new_friend:
+            if new_friend not in st.session_state.friends_list:
+                st.session_state.friends_list.append(new_friend)
+                
+                # --- THIS IS THE KEY CHANGE ---
+                # We call our new cloud function here
+                add_contact(new_friend, "") 
+                
+                st.session_state.last_added = new_friend
+                st.rerun()
+    # --- 🧹 Maintenance ---
+    if st.session_state.friends_list:
+        st.markdown("---")
+        if st.button("Clear Current List", use_container_width=True):
+            st.session_state.friends_list = []
+            st.session_state.tax_ledger = {}
+            st.rerun()
 
 st.write("Open the sidebar on top - looks like >>")
 st.write(f"Current Bill: Rs.{bill}")
@@ -102,7 +118,10 @@ if st.session_state.friends_list:
 
     total_assigned = sum(individual_share.values())
     diff = round(bill-total_assigned, 2)
-    
+    if diff != 0:
+        first_person = st.session_state.friends_list[0]
+        individual_share[first_person] = round(individual_share[first_person] + diff, 2)
+
     if abs(total_assigned - bill) > 0.1:
         st.warning(f"Note: Total assigned (₹{total_assigned:.2f}) doesn't match the bill (₹{bill:.2f}). Proportional tax will adjust this automatically!")
 
@@ -137,11 +156,9 @@ if st.session_state.final_results:
         with cols[i]:
             st.metric(name, f"₹{amount:.2f}")
             if amount > 0:
-                # Ensure the path matches exactly how you saved the file
                 img_path = f"qrs_output/{name}_owes_{amount:.2f}.png"
                 st.image(img_path, use_container_width=True)
             else:
-                # The 'Aura' move: Show a checkmark for people who owe 0
                 st.success("All Settled")
     
     for name, amount in st.session_state.tax_ledger.items():
