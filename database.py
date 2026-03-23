@@ -25,3 +25,14 @@ def get_all_contacts(owner_vpa):
         data = response.json()
         return {row['name']: row['upi_id'] for row in data}
     return {}
+
+# Add this to your database.py
+def delete_contact(name, owner_vpa):
+    if not owner_vpa: return
+    headers = {
+        "apikey": KEY,
+        "Authorization": f"Bearer {KEY}"
+    }
+    # We use the .eq filter to find the exact name for THAT user
+    endpoint = f"{URL}/rest/v1/contacts?user_id=eq.{owner_vpa}&name=eq.{name}"
+    requests.delete(endpoint, headers=headers)

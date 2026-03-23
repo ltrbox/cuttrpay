@@ -1,5 +1,5 @@
 import streamlit as st
-from database import add_contact, get_all_contacts
+import database
 import logic
 import services
 import urllib.parse
@@ -34,7 +34,7 @@ unequal_ledger = {}
 
 with st.sidebar:
     st.title("CuttrPay")
-    st.caption("v1.25 | ltrbox.labs@gmail.com")
+    st.caption("v1 | ltrbox.labs@gmail.com")
     
     with st.expander("How it works"):
         st.write("1. Enter total bill.")
@@ -66,33 +66,55 @@ with st.sidebar:
     # --- 📇 SECTION 3: THE MEMORY ENGINE (SQLite) ---
     st.header("3. Add Friends")
     
-    # Load from Database
-    saved_contacts = get_all_contacts(vpa) # returns {name: upi_id}
+    new_friend = st.text_input("Quick Add (One-time)", placeholder="Enter name...", key="quick_add_input")
+    if st.button("Add to Current Split", use_container_width=True):
+        if new_friend and new_friend not in st.session_state.friends_list:
+            # SAVE FIRST
+            database.add_contact(new_friend, "", vpa)
+            # UPDATE SESSION STATE IMMEDIATELY (Local Sync)
+            st.session_state.friends_list.append(new_friend)
+            st.toast(f"✅ {new_friend} added!")
+            st.rerun()
+
+    st.divider()
+
+    # 2. FETCH FRESH DATA
+    # Put this RIGHT BEFORE the multiselect to ensure it's the latest
+    saved_contacts = database.get_all_contacts(vpa)
     
     if saved_contacts:
-        selected_from_db = st.multiselect(
-            "Quick Add Favorites:", 
-            options=list(saved_contacts.keys())
+        selected = st.multiselect(
+            "Select from Favorites:", 
+            options=list(saved_contacts.keys()),
+            placeholder="Choose friends..."
         )
-        if st.button("Add Favorites to Bill"):
-            for name in selected_from_db:
+        if st.button("Add Selected to Bill", type="primary", use_container_width=True):
+            for name in selected:
                 if name not in st.session_state.friends_list:
                     st.session_state.friends_list.append(name)
             st.rerun()
 
-    # Manual Add logic
-    new_friend = st.text_input("Friend's Name")
-    if st.button("Add to Current Split"):
-        if new_friend:
-            if new_friend not in st.session_state.friends_list:
-                st.session_state.friends_list.append(new_friend)
-                
-                # --- THIS IS THE KEY CHANGE ---
-                # We call our new cloud function here
-                add_contact(new_friend, "", vpa) 
-                
-                st.session_state.last_added = new_friend
+    # 3. MANAGEMENT
+    with st.expander("⚙️ Manage & Add Favorites"):
+        fav_name = st.text_input("Name", key="manage_fav_name")
+        fav_upi = st.text_input("UPI ID (Optional)", key="manage_fav_upi")
+        if st.button("Save to Cloud", key="save_fav_btn", use_container_width=True):
+            if fav_name:
+                database.add_contact(fav_name, fav_upi, vpa)
+                st.toast(f"Saved {fav_name}!")
+                # Force the refresh
                 st.rerun()
+        
+        st.divider()
+        # Re-fetch here specifically for the delete list
+        if saved_contacts:
+            for name in list(saved_contacts.keys()):
+                col1, col2 = st.columns([4, 1])
+                col1.write(name)
+                if col2.button("🗑️", key=f"del_{name}"):
+                    database.delete_contact(name, vpa)
+                    st.rerun()
+
     # --- 🧹 Maintenance ---
     if st.session_state.friends_list:
         st.markdown("---")
