@@ -11,11 +11,11 @@ https://cuttrpay.streamlit.app/
 - **Instant Settlement:** Generates dynamic UPI QR codes for immediate scan-and-pay.
 - **Zero Friction:** No user accounts or downloads required for friends.
 - **Social Integration:** One-click copy for WhatsApp group summaries.
+- **Saved Favourites List** Using UPI ID as a unique identifer, friends can be saved, saving the hassle of adding them each time.
 
 ## Tech Stack
 - **Frontend:** Streamlit
-- **Backend:** Python 3.14+
-- **QR Engine:** `qrcode` library
+- **Backend:** Python + PostgreSQL
 
 ## Local Setup
 
