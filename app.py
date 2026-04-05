@@ -44,12 +44,12 @@ with st.sidebar:
 
     st.markdown("---")
     
-    # --- 💰 SECTION 1: BILL SETTINGS ---
+    # BILL SETTINGS
     st.header("1. Bill Details")
     bill = st.number_input("Total Amount (₹)", min_value=0.0, value=100.0, step=10.0)
     event_name = st.text_input("Event Name", placeholder="e.g. Lunch at Mess")
 
-    # --- 💳 SECTION 2: RECEIVER SETTINGS ---
+    # RECEIVER SETTINGS
     st.header("2. Receiver UPI")
     vpa_prefix = st.text_input("Your ID", placeholder="e.g. 9876543210", value=st.session_state.get('saved_vpa_prefix', ""))
     
@@ -63,7 +63,6 @@ with st.sidebar:
 
     st.markdown("---")
 
-    # --- 📇 SECTION 3: THE MEMORY ENGINE (SQLite) ---
     st.header("3. Add Friends")
     
     new_friend = st.text_input("Quick Add (One-time)", placeholder="Enter name...", key="quick_add_input")
@@ -79,7 +78,6 @@ with st.sidebar:
     st.divider()
 
     # 2. FETCH FRESH DATA
-    # Put this RIGHT BEFORE the multiselect to ensure it's the latest
     saved_contacts = database.get_all_contacts(vpa)
     
     if saved_contacts:
@@ -115,7 +113,7 @@ with st.sidebar:
                     database.delete_contact(name, vpa)
                     st.rerun()
 
-    # --- 🧹 Maintenance ---
+    #  Maintenance
     if st.session_state.friends_list:
         st.markdown("---")
         if st.button("Clear Current List", use_container_width=True):
@@ -139,10 +137,6 @@ if st.session_state.friends_list:
         individual_share[name] = amount
 
     total_assigned = sum(individual_share.values())
-    diff = round(bill-total_assigned, 2)
-    if diff != 0:
-        first_person = st.session_state.friends_list[0]
-        individual_share[first_person] = round(individual_share[first_person] + diff, 2)
 
     if abs(total_assigned - bill) > 0.1:
         st.warning(f"Note: Total assigned (₹{total_assigned:.2f}) doesn't match the bill (₹{bill:.2f}). Proportional tax will adjust this automatically!")
@@ -200,10 +194,10 @@ if st.session_state.final_results:
 elif not st.session_state.friends_list:
     st.info("Add friends and hit 'Generate")
 
-st.markdown("---") # Visual separator
+st.markdown("---")
 st.markdown(
     "<div style='text-align: center; color: grey; font-size: 0.8em;'>"
-    "Have an idea or found a bug? 💡<br>"
+    "Have an idea or found a bug?<br>"
     "<a href='mailto:ltrbox.labs@gmail.com' style='color: #007bff;'>ltrbox.labs@gmail.com</a>"
     "</div>", 
     unsafe_allow_html=True

@@ -26,7 +26,6 @@ def get_all_contacts(owner_vpa):
         return {row['name']: row['upi_id'] for row in data}
     return {}
 
-# Add this to your database.py
 def delete_contact(name, owner_vpa):
     if not owner_vpa: return
     headers = {

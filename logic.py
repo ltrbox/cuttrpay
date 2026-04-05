@@ -1,4 +1,4 @@
-# Takes dictionary of each name, cost paid and scales the tax to match 
+# Takes dictionary of each name, cost paid and scales the amount to match 
 def proportional_tax(individual_share, total_bill_with_tax):
 
     subtotal = sum(individual_share.values())
