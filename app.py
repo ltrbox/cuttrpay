@@ -53,12 +53,22 @@ with st.sidebar:
     st.header("2. Receiver UPI")
     vpa_prefix = st.text_input("Your ID", placeholder="e.g. 9876543210", value=st.session_state.get('saved_vpa_prefix', ""))
     
-    handle = st.radio(
+    handle_options = ["@okaxis", "@ybl", "@paytm", "@ibl", "@okhdfcbank", "Other"]
+
+    handle_selection = st.radio(
         "Handle:",
-        ["@okaxis", "@ybl", "@paytm", "@ibl", "@okhdfcbank"],
+        handle_options,
         horizontal=True
     )
-    vpa = f"{vpa_prefix}{handle}"
+
+    if handle_selection == "Other":
+        # This only appears if they click "Other"
+        custom_handle = st.text_input("Enter Custom Handle", placeholder="@pingpay")
+        vpa = f"{vpa_prefix}{custom_handle}"
+    else:
+        vpa = f"{vpa_prefix}{handle_selection}"
+
+
     st.caption(f"Paying to: **{vpa}**")
 
     st.markdown("---")
@@ -178,7 +188,7 @@ if st.session_state.final_results:
                 st.success("All Settled")
     
     for name, amount in st.session_state.tax_ledger.items():
-        personal_msg = f"Hey {name}! Your share for dinner is ₹{amount}. Pay here: {upi_link}"
+        personal_msg = f"Hey {name}! Your share for dinner is ₹{amount}. Pay here: {upi_link}\nGenerated via CuttrPay"
     
         encoded_msg = urllib.parse.quote(personal_msg)
     
@@ -186,7 +196,7 @@ if st.session_state.final_results:
 
     summary_text = services.generate_summary(event_name, individual_share)
     st.subheader("📋 Final Breakdown")
-    st.code(summary_text, language="text")
+    st.code(summary_text, language="text") 
 
     copy_button(summary_text, tooltip='Click to copy', copied_label='Copied!')
 
