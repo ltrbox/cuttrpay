@@ -168,6 +168,18 @@ if st.button("Generate payment QR codes"):
                     st.warning(f"Share for {name} is zero. No QR needed.")
             else:
                 st.warning("Skipping QR Code generation - No UPI ID provided")
+        
+        try:
+            logic.track_event_rest(
+            "qr_generated", 
+            vpa, 
+            num_friends, 
+            bill, 
+            st.session_state.get('manual_edit_active', False)
+            )   
+        except:
+            pass
+
         st.success("Scan Below")
         st.rerun()
 
@@ -183,9 +195,10 @@ if st.session_state.final_results:
             st.metric(name, f"₹{amount:.2f}")
             if amount > 0:
                 img_path = f"qrs_output/{name}_owes_{amount:.2f}.png"
-                st.image(img_path, use_container_width=True)
+                st.image(img_path, width='stretch')
             else:
                 st.success("All Settled")
+                 
     
     for name, amount in st.session_state.tax_ledger.items():
         personal_msg = f"Hey {name}! Your share for dinner is ₹{amount}. Pay here: {upi_link}\nGenerated via CuttrPay"
