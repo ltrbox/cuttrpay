@@ -201,7 +201,7 @@ if st.session_state.final_results:
                  
     
     for name, amount in st.session_state.tax_ledger.items():
-        personal_msg = f"Hey {name}! Your share for dinner is ₹{amount}. Pay here: {upi_link}\nGenerated via CuttrPay"
+        personal_msg = f"Hey {name}! Your share for dinner is ₹{amount}. Pay here: {upi_link}\nGenerated via CuttrPay\nTry here: cuttrpay.streamlit.app"
     
         encoded_msg = urllib.parse.quote(personal_msg)
     
