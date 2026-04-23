@@ -58,7 +58,8 @@ with st.sidebar:
     handle_selection = st.radio(
         "Handle:",
         handle_options,
-        horizontal=True
+        horizontal=True,
+        index=None
     )
 
     if handle_selection == "Other":
@@ -77,13 +78,9 @@ with st.sidebar:
     
     new_friend = st.text_input("Quick Add (One-time)", placeholder="Enter name...", key="quick_add_input")
     if st.button("Add to Current Split", use_container_width=True):
-        if new_friend and new_friend not in st.session_state.friends_list:
-            # SAVE FIRST
-            database.add_contact(new_friend, "", vpa)
-            # UPDATE SESSION STATE IMMEDIATELY (Local Sync)
-            st.session_state.friends_list.append(new_friend)
-            st.toast(f"✅ {new_friend} added!")
-            st.rerun()
+        st.session_state.friends_list.append(new_friend)
+        st.toast(f"✅ {new_friend} added!")
+        st.rerun()
 
     st.divider()
 
@@ -105,12 +102,19 @@ with st.sidebar:
     # 3. MANAGEMENT
     with st.expander("⚙️ Manage & Add Favorites"):
         fav_name = st.text_input("Name", key="manage_fav_name")
-        fav_upi = st.text_input("UPI ID (Optional)", key="manage_fav_upi")
+        fav_upi = 0  # Note: Ensure your database handles 0 correctly!
+
+        is_vpa_complete = vpa_prefix and handle_selection and (handle_selection != "Other" or custom_handle)
+
         if st.button("Save to Cloud", key="save_fav_btn", use_container_width=True):
-            if fav_name:
+            if not fav_name:
+                st.error("Please enter a name.")
+            elif not is_vpa_complete: # This is the gatekeeper
+                st.error("Enter your COMPLETE UPI ID first (Prefix + Handle)")
+            else:
+                # Success logic
                 database.add_contact(fav_name, fav_upi, vpa)
                 st.toast(f"Saved {fav_name}!")
-                # Force the refresh
                 st.rerun()
         
         st.divider()
