@@ -151,41 +151,45 @@ if st.session_state.friends_list:
         individual_share[name] = amount
 
     total_assigned = sum(individual_share.values())
-
-    if abs(total_assigned - bill) > 0.1:
+    difference = round(bill - total_assigned, 2)
+    if abs(total_assigned - bill) > 0.1:                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
         st.warning(f"Note: Total assigned (₹{total_assigned:.2f}) doesn't match the bill (₹{bill:.2f}). Proportional tax will adjust this automatically!")
-
+    elif abs(difference) == 0.01:
+        first_friend = st.session_state.friends_list[0]
+        individual_share[first_friend] = round(individual_share[first_friend] + difference, 2)
 
 if st.button("Generate payment QR codes"):
     st.session_state.show_qrs = True
     if st.session_state.friends_list:
-        
-        ledger = logic.proportional_tax(individual_share, bill)
-        st.session_state.final_results = {name: max(0.0, amt) for name, amt in ledger.items()}
+        if not is_vpa_complete:
+            st.error("Enter your COMPLETE UPI ID first (Prefix + Handle)")
+        else:
+            ledger = logic.proportional_tax(individual_share, bill)
+            st.session_state.final_results = {name: max(0.0, amt) for name, amt in ledger.items()}
 
-        st.session_state.tax_ledger = ledger
-        for name, amount in st.session_state.tax_ledger.items():
-            if vpa:
-                if amount > 0:
-                    services.qr_code_gen(ledger, vpa)
+            st.session_state.tax_ledger = ledger
+            for name, amount in st.session_state.tax_ledger.items():
+                if vpa:
+                    if amount > 0:
+                        services.qr_code_gen(ledger, vpa)
+                    else:
+                        st.warning(f"Share for {name} is zero. No QR needed.")
                 else:
-                    st.warning(f"Share for {name} is zero. No QR needed.")
-            else:
-                st.warning("Skipping QR Code generation - No UPI ID provided")
-        
-        try:
-            logic.track_event_rest(
-            "qr_generated", 
-            vpa, 
-            num_friends, 
-            bill, 
-            st.session_state.get('manual_edit_active', False)
-            )   
-        except:
-            pass
+                    st.warning("Skipping QR Code generation - No UPI ID provided")
+            
+            try:
+                logic.track_event_rest(
+                "qr_generated", 
+                vpa, 
+                num_friends, 
+                bill, 
+                st.session_state.get('manual_edit_active', False)
+                )   
+            except:
+                pass
 
-        st.success("Scan Below")
-        st.rerun()
+            st.success("Scan Below")
+            st.rerun()
 
 upi_link = services.get_upi_link(vpa, bill)
 
@@ -211,7 +215,8 @@ if st.session_state.final_results:
     
         st.link_button(f"📲 Send to {name}", f"https://wa.me/?text={encoded_msg}", use_container_width=True)
 
-    summary_text = services.generate_summary(event_name, individual_share)
+    ledger = logic.proportional_tax(individual_share, bill)
+    summary_text = services.generate_summary(event_name, individual_share, bill, ledger)
     st.subheader("📋 Final Breakdown")
     st.code(summary_text, language="text") 
 

@@ -31,25 +31,16 @@ def qr_code_gen(final_ledger, vpa):
             
             print(f"Generated QR for {name}: ₹{amount}")
 
-def generate_summary(event_name, shares):
-    total = sum(shares.values())
+def generate_summary(event_name, shares, bill_amount, ledger):
     max_amount = max(shares.values())
 
-    whales = [name for name, amount in shares.items() if amount == max_amount]
+    whales = [name for name, amount in ledger.items() if amount == max_amount]
     summary = f"📊 *CuttrPay Summary: {event_name}*\n"
-    summary += f" Total Bill: ₹{total}\n"
+    summary += f" Total Bill: ₹{bill_amount}\n"
     summary += "---------------------------\n"
     
-    for name, amount in shares.items():
+    for name, amount in ledger.items():
         summary += f"• {name}: ₹{amount}\n"
     
     summary += "---------------------------\n"
-
-    if len(whales) == len(shares) and len(shares) > 1:
-        summary += "It's an equal split!"
-    elif len(whales) > 1:
-        summary += f"🏆 Joint Whales: {', '.join(whales)} (₹{max_amount} each)"
-    else:
-        summary += f"🏆 Whale: {whales[0]} (₹{max_amount})"
-    summary += "\nGenerated via CuttrPay 🚀"
     return summary
